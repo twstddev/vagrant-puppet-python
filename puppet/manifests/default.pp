@@ -59,14 +59,10 @@ case $database {
 		mongodb::db { "app":
 			user => "root",
 			password => "root",
+			require => Class[ "::mongodb::server" ],
 		}
 	}
 }
 
 # Install python
-class { "python":
-	version => "3",
-	dev => true,
-	virtualenv => true,
-	pip => true
-}
+
