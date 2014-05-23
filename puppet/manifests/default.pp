@@ -62,3 +62,11 @@ case $database {
 		}
 	}
 }
+
+# Install python
+class { "python":
+	version => "3",
+	dev => true,
+	virtualenv => true,
+	pip => true
+}
