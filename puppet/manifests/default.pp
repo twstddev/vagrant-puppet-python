@@ -1,7 +1,7 @@
 # Variables
 $home = "/home/vagrant"
 $execute_as_vagrant = "sudo -u vagrant -H bash -l -c"
-# user "postgresql" or "mongodb"
+# use "postgresql" or "mongodb"
 $database = "postgresql"
 
 # Set default binary paths 
@@ -37,4 +37,28 @@ package { "curl":
 
 package { [ "sqlite3", "libsqlite3-dev" ]:
 	ensure => "present",
+}
+
+# Install database
+case $database {
+	"postgresql" : {
+		class { "postgresql::server":
+			postgres_password => "postgres"
+		}
+		postgresql::server::db { "app":
+			user => "root",
+			password => postgresql_password( "root", "root" ),
+			require => Class[ "postgresql::server" ],
+		}
+	}
+
+	"mongodb" : {
+		class { "::mongodb::server":
+			auth => true,
+		}
+		mongodb::db { "app":
+			user => "root",
+			password => "root",
+		}
+	}
 }
