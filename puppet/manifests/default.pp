@@ -4,6 +4,9 @@ $execute_as_vagrant = "sudo -u vagrant -H bash -l -c"
 # use "postgresql" or "mongodb"
 $database = "postgresql"
 
+# use "Django or Flask"
+$framework = "Django"
+
 # Set default binary paths 
 Exec {
 	path => [ "/usr/bin", "/usr/local/bin" ]
@@ -74,6 +77,7 @@ case $database {
 $pyenv_path = "${home}/.pyenv"
 $pyenv = "${pyenv_path}/bin/pyenv"
 $shims = "${pyenv_path}/shims"
+$dev_env = "${home}/development"
 
 exec { "clone_pyenv":
 	command => "${execute_as_vagrant} 'cd && git clone git://github.com/yyuu/pyenv.git .pyenv'"
@@ -108,7 +112,12 @@ exec { "install_virtualenv":
 }
 
 exec{ "create_app_virtualenv":
-	command => "${execute_as_vagrant} '${shims}/virtualenv --always-copy /app'",
+	command => "${execute_as_vagrant} '${shims}/virtualenv ${dev_env}'",
+}
+
+exec{ "install_framework":
+	command => "${execute_as_vagrant} '${dev_env}/bin/pip install ${framework}'",
+	timeout => 0,
 }
 
 Package[ "build-essential" ] ->
@@ -119,4 +128,5 @@ Package[ "build-essential" ] ->
 	File_line[ "EVAL" ] ->
 	Exec[ "install_python" ] ->
 	Exec[ "rehash" ] ->
-	Exec[ "install_virtualenv" ]
+	Exec[ "install_virtualenv" ] ->
+	Exec[ "create_app_virtualenv" ]
