@@ -114,4 +114,5 @@ Package[ "build-essential" ] ->
 	File_line[ "PATH" ] ->
 	File_line[ "EVAL" ] ->
 	Exec[ "install_python" ] ->
-	Exec[ "rehash" ]
+	Exec[ "rehash" ] ->
+	Exec[ "install_virtualenv" ]
