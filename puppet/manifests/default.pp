@@ -129,4 +129,5 @@ Package[ "build-essential" ] ->
 	Exec[ "install_python" ] ->
 	Exec[ "rehash" ] ->
 	Exec[ "install_virtualenv" ] ->
-	Exec[ "create_app_virtualenv" ]
+	Exec[ "create_app_virtualenv" ] ->
+	Exec[ "install_framework" ]
