@@ -107,6 +107,10 @@ exec { "install_virtualenv":
 	command => "${execute_as_vagrant} '${shims}/pip install virtualenv'",
 }
 
+exec{ "create_app_virtualenv":
+	command => "${execute_as_vagrant} '${shims}/virtualenv --always-copy /app'",
+}
+
 Package[ "build-essential" ] ->
 	Package[ "git" ] ->
 	Exec[ "clone_pyenv" ] ->
