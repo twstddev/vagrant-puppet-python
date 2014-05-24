@@ -31,6 +31,10 @@ package { "git":
 	ensure => "present",
 }
 
+package { "build-essential":
+	ensure => "present",
+}
+
 package { "curl":
 	ensure => "present",
 }
@@ -64,5 +68,50 @@ case $database {
 	}
 }
 
-# Install python
 
+# Install python
+# This installation follows instructions from https://github.com/yyuu/pyenv
+$pyenv_path = "${home}/.pyenv"
+$pyenv = "${pyenv_path}/bin/pyenv"
+$shims = "${pyenv_path}/shims"
+
+exec { "clone_pyenv":
+	command => "${execute_as_vagrant} 'cd && git clone git://github.com/yyuu/pyenv.git .pyenv'"
+}
+
+file_line { "PYENV_ROOT":
+	path => "${home}/.bashrc",
+	line => 'export PYENV_ROOT="$HOME/.pyenv"',
+}
+
+file_line { "PATH":
+	path => "${home}/.bashrc",
+	line => 'export PATH="$PYENV_ROOT/bin:$PATH"',
+}
+
+file_line { "EVAL":
+	path => "${home}/.bashrc",
+	line => 'eval "$(pyenv init -)"',
+}
+
+exec { "install_python":
+	command => "${execute_as_vagrant} '${pyenv} install 3.4.1'",
+	timeout => 0,
+}
+
+exec { "rehash":
+	command => "${execute_as_vagrant} '${pyenv} rehash && ${pyenv} global 3.4.1'",
+}
+
+exec { "install_virtualenv":
+	command => "${execute_as_vagrant} '${shims}/pip install virtualenv'",
+}
+
+Package[ "build-essential" ] ->
+	Package[ "git" ] ->
+	Exec[ "clone_pyenv" ] ->
+	File_line[ "PYENV_ROOT" ] ->
+	File_line[ "PATH" ] ->
+	File_line[ "EVAL" ] ->
+	Exec[ "install_python" ] ->
+	Exec[ "rehash" ]
